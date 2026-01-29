@@ -1,24 +1,10 @@
 from http import HTTPStatus
-from typing import Annotated
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field, field_validator
+from fastapi import APIRouter, HTTPException
 
+from .schemas import SkillRequest, SkillResponse
 
-class SkillRequest(BaseModel):
-    name: Annotated[str, Field(min_length=3, max_length=50)]
-
-    @field_validator("name")
-    def normalize_name(cls, value: str):
-        return value.strip().upper()
-
-
-class SkillResponse(BaseModel):
-    id: int
-    name: str
-
-
-app = FastAPI()
+router = APIRouter(tags=["Skills"])
 
 skills_db = [
     {"id": 1, "name": "PYTHON"},
@@ -28,26 +14,19 @@ skills_db = [
 next_skill_id = 4
 
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, TWJobs!"}
-
-
-@app.get(
-    "/api/skills",
+@router.get(
+    "/",
     summary="Retrieve all skills",
-    tags=["Skills"],
     response_model=list[SkillResponse],
 )
 def get_skills():
     return skills_db
 
 
-@app.post(
-    "/api/skills",
+@router.post(
+    "/",
     status_code=HTTPStatus.CREATED,
     summary="Create a new skill",
-    tags=["Skills"],
     response_model=SkillResponse,
 )
 def create_skill(skill: SkillRequest):
@@ -58,10 +37,9 @@ def create_skill(skill: SkillRequest):
     return new_skill
 
 
-@app.get(
-    "/api/skills/{skill_id}",
+@router.get(
+    "/{skill_id}",
     summary="Retrieve a skill by ID",
-    tags=["Skills"],
     response_model=SkillResponse,
 )
 def get_skill(skill_id: int):
@@ -73,10 +51,9 @@ def get_skill(skill_id: int):
     )
 
 
-@app.put(
-    "/api/skills/{skill_id}",
+@router.put(
+    "/{skill_id}",
     summary="Update a skill by ID",
-    tags=["Skills"],
     response_model=SkillResponse,
 )
 def update_skill(skill_id: int, skill: SkillRequest):
@@ -89,11 +66,10 @@ def update_skill(skill_id: int, skill: SkillRequest):
     )
 
 
-@app.delete(
-    "/api/skills/{skill_id}",
+@router.delete(
+    "/{skill_id}",
     status_code=HTTPStatus.NO_CONTENT,
     summary="Delete a skill by ID",
-    tags=["Skills"],
 )
 def delete_skill(skill_id: int):
     for index, skill in enumerate(skills_db):

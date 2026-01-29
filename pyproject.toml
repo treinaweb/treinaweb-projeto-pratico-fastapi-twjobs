@@ -30,4 +30,4 @@ select = ["I", "F", "E", "W", "PL", "FAST"]
 lint = "ruff check"
 pre_format = "ruff check --fix"
 format = "ruff format"
-dev = "fastapi dev main.py"
+dev = "fastapi dev twjobs/app.py"
