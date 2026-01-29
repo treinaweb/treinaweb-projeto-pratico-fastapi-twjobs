@@ -1,13 +1,19 @@
 from http import HTTPStatus
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
+from fastapi import APIRouter, HTTPException, Query
+from sqlalchemy import asc, desc, func, select
 from sqlalchemy.exc import IntegrityError
 
 from twjobs.core.dependencies import SessionDep
 from twjobs.core.models import Skill
 
-from .schemas import SkillRequest, SkillResponse
+from .schemas import (
+    PaginatedSkillResponse,
+    SkillFilters,
+    SkillRequest,
+    SkillResponse,
+)
 
 router = APIRouter(tags=["Skills"])
 
@@ -15,10 +21,36 @@ router = APIRouter(tags=["Skills"])
 @router.get(
     "/",
     summary="Retrieve all skills",
-    response_model=list[SkillResponse],
+    response_model=PaginatedSkillResponse,
 )
-def get_skills(session: SessionDep):
-    return session.scalars(select(Skill)).all()
+def get_skills(session: SessionDep, filters: Annotated[SkillFilters, Query()]):
+    base_stmt = select(Skill)
+
+    if filters.search:
+        base_stmt = base_stmt.where(Skill.name.ilike(f"%{filters.search}%"))
+
+    total = session.scalar(
+        select(func.count()).select_from(base_stmt.subquery())
+    )
+
+    order_column = getattr(Skill, filters.order_by)
+    order_func = asc if filters.order_dir == "asc" else desc
+    offset = (filters.page - 1) * filters.size
+
+    stmt = (
+        base_stmt.order_by(order_func(order_column))
+        .offset(offset)
+        .limit(filters.size)
+    )
+
+    skills = session.scalars(stmt).all()
+
+    return {
+        "total": total,
+        "page": filters.page,
+        "size": filters.size,
+        "items": skills,
+    }
 
 
 @router.post(
