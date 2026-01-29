@@ -1,11 +1,16 @@
 from http import HTTPStatus
+from typing import Annotated
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 
 class SkillRequest(BaseModel):
-    name: str
+    name: Annotated[str, Field(min_length=3, max_length=50)]
+
+    @field_validator("name")
+    def normalize_name(cls, value: str):
+        return value.strip().upper()
 
 
 class SkillResponse(BaseModel):
@@ -16,9 +21,9 @@ class SkillResponse(BaseModel):
 app = FastAPI()
 
 skills_db = [
-    {"id": 1, "name": "Python"},
-    {"id": 2, "name": "FastAPI"},
-    {"id": 3, "name": "Docker"},
+    {"id": 1, "name": "PYTHON"},
+    {"id": 2, "name": "FASTAPI"},
+    {"id": 3, "name": "DOCKER"},
 ]
 next_skill_id = 4
 
