@@ -3,9 +3,8 @@ from http import HTTPStatus
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
 
-from twjobs.core.db import engine
+from twjobs.core.dependencies import SessionDep
 from twjobs.core.models import Skill
 
 from .schemas import SkillRequest, SkillResponse
@@ -18,9 +17,8 @@ router = APIRouter(tags=["Skills"])
     summary="Retrieve all skills",
     response_model=list[SkillResponse],
 )
-def get_skills():
-    with Session(engine) as session:
-        return session.scalars(select(Skill)).all()
+def get_skills(session: SessionDep):
+    return session.scalars(select(Skill)).all()
 
 
 @router.post(
@@ -29,21 +27,20 @@ def get_skills():
     summary="Create a new skill",
     response_model=SkillResponse,
 )
-def create_skill(skill: SkillRequest):
-    with Session(engine) as session:
-        db_skill = Skill(**skill.model_dump())
-        session.add(db_skill)
+def create_skill(skill: SkillRequest, session: SessionDep):
+    db_skill = Skill(**skill.model_dump())
+    session.add(db_skill)
 
-        try:
-            session.commit()
-        except IntegrityError:
-            session.rollback()
-            raise HTTPException(
-                status_code=HTTPStatus.CONFLICT, detail="Skill already exists"
-            )
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT, detail="Skill already exists"
+        )
 
-        session.refresh(db_skill)
-        return db_skill
+    session.refresh(db_skill)
+    return db_skill
 
 
 @router.get(
@@ -51,14 +48,13 @@ def create_skill(skill: SkillRequest):
     summary="Retrieve a skill by ID",
     response_model=SkillResponse,
 )
-def get_skill(skill_id: int):
-    with Session(engine) as session:
-        db_skill = session.get(Skill, skill_id)
-        if db_skill is None:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND, detail="Skill not found"
-            )
-        return db_skill
+def get_skill(skill_id: int, session: SessionDep):
+    db_skill = session.get(Skill, skill_id)
+    if db_skill is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail="Skill not found"
+        )
+    return db_skill
 
 
 @router.put(
@@ -66,25 +62,28 @@ def get_skill(skill_id: int):
     summary="Update a skill by ID",
     response_model=SkillResponse,
 )
-def update_skill(skill_id: int, skill: SkillRequest):
-    with Session(engine) as session:
-        db_skill = session.get(Skill, skill_id)
-        if db_skill is None:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND, detail="Skill not found"
-            )
-        db_skill.name = skill.name
+def update_skill(
+    skill_id: int,
+    skill: SkillRequest,
+    session: SessionDep,
+):
+    db_skill = session.get(Skill, skill_id)
+    if db_skill is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail="Skill not found"
+        )
+    db_skill.name = skill.name
 
-        try:
-            session.commit()
-        except IntegrityError:
-            session.rollback()
-            raise HTTPException(
-                status_code=HTTPStatus.CONFLICT, detail="Skill already exists"
-            )
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT, detail="Skill already exists"
+        )
 
-        session.refresh(db_skill)
-        return db_skill
+    session.refresh(db_skill)
+    return db_skill
 
 
 @router.delete(
@@ -92,12 +91,11 @@ def update_skill(skill_id: int, skill: SkillRequest):
     status_code=HTTPStatus.NO_CONTENT,
     summary="Delete a skill by ID",
 )
-def delete_skill(skill_id: int):
-    with Session(engine) as session:
-        db_skill = session.get(Skill, skill_id)
-        if db_skill is None:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND, detail="Skill not found"
-            )
-        session.delete(db_skill)
-        session.commit()
+def delete_skill(skill_id: int, session: SessionDep):
+    db_skill = session.get(Skill, skill_id)
+    if db_skill is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail="Skill not found"
+        )
+    session.delete(db_skill)
+    session.commit()
