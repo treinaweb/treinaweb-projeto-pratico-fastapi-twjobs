@@ -11,3 +11,15 @@ class Skill:
         init=False, primary_key=True, autoincrement=True
     )
     name: Mapped[str] = mapped_column(unique=True)
+
+
+@mapped_as_dataclass(table_registry)
+class User:
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(
+        init=False, primary_key=True, autoincrement=True
+    )
+    username: Mapped[str] = mapped_column(unique=True)
+    role: Mapped[str]
+    password_hash: Mapped[str]
