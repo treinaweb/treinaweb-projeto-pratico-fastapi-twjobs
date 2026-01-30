@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Text
+from sqlalchemy import Column, ForeignKey, Table, Text
 from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,
@@ -8,6 +8,22 @@ from sqlalchemy.orm import (
 )
 
 table_registry = registry()
+
+
+candidate_skills = Table(
+    "candidate_skills",
+    table_registry.metadata,
+    Column(
+        "candidate_id",
+        ForeignKey("candidates.user_id"),
+        primary_key=True,
+    ),
+    Column(
+        "skill_id",
+        ForeignKey("skills.id"),
+        primary_key=True,
+    ),
+)
 
 
 @mapped_as_dataclass(table_registry)
@@ -75,4 +91,8 @@ class Candidate:
 
     user: Mapped["User"] = relationship(
         init=False, back_populates="candidate", single_parent=True
+    )
+
+    skills: Mapped[list["Skill"]] = relationship(
+        init=False, secondary=candidate_skills
     )

@@ -35,3 +35,12 @@ class CandidateResponse(BaseModel):
     headline: str
     bio: str
     cpf: str
+
+
+class SkillRequest(BaseModel):
+    skills: list[int]
+
+
+class SkillResponse(BaseModel):
+    id: int
+    name: str
