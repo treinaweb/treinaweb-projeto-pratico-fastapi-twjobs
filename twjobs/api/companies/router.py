@@ -54,3 +54,31 @@ def create_or_update_company(
     session.commit()
     session.refresh(db_company)
     return db_company
+
+
+@router.get("/me", response_model=CompanyResponse)
+def get_current_company(
+    current_user: CurrentCompanyUserDep,
+):
+    if current_user.company is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Company not found for the current user.",
+        )
+    return current_user.company
+
+
+@router.get("/{user_id}", response_model=CompanyResponse)
+def get_company_by_user_id(
+    user_id: int,
+    session: SessionDep,
+):
+    db_company = session.get(Company, user_id)
+
+    if db_company is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail="Company not found for the given user ID.",
+        )
+
+    return db_company

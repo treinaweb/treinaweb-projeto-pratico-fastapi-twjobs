@@ -24,7 +24,7 @@ class CompanyRequest(BaseModel):
 
 
 class CompanyResponse(BaseModel):
-    id: int
+    user_id: int
     name: str
     email: EmailStr
     cnpj: str

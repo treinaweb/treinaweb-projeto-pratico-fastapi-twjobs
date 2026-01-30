@@ -40,9 +40,6 @@ class User:
 class Company:
     __tablename__ = "companies"
 
-    id: Mapped[int] = mapped_column(
-        init=False, primary_key=True, autoincrement=True
-    )
     name: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
     cnpj: Mapped[str] = mapped_column(unique=True)
@@ -50,7 +47,7 @@ class Company:
     size: Mapped[str]
     website: Mapped[str]
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"), nullable=False, unique=True
+        ForeignKey("users.id"), primary_key=True
     )
 
     user: Mapped["User"] = relationship(
