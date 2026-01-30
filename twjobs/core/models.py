@@ -35,6 +35,10 @@ class User:
         init=False, back_populates="user"
     )
 
+    candidate: Mapped["Candidate"] = relationship(
+        init=False, back_populates="user"
+    )
+
 
 @mapped_as_dataclass(table_registry)
 class Company:
@@ -52,4 +56,23 @@ class Company:
 
     user: Mapped["User"] = relationship(
         init=False, back_populates="company", single_parent=True
+    )
+
+
+@mapped_as_dataclass(table_registry)
+class Candidate:
+    __tablename__ = "candidates"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), primary_key=True
+    )
+    name: Mapped[str]
+    email: Mapped[str] = mapped_column(unique=True)
+    headline: Mapped[str]
+    bio: Mapped[str] = mapped_column(Text)
+    phone: Mapped[str]
+    cpf: Mapped[str] = mapped_column(unique=True)
+
+    user: Mapped["User"] = relationship(
+        init=False, back_populates="candidate", single_parent=True
     )

@@ -60,3 +60,7 @@ class RoleChecker:
 
 
 CurrentCompanyUserDep = Annotated[User, Depends(RoleChecker(["company"]))]
+CurrentCandidateUserDep = Annotated[User, Depends(RoleChecker(["candidate"]))]
+CurrentAdminOrCompanyUserDep = Annotated[
+    User, Depends(RoleChecker(["admin", "company"]))
+]
