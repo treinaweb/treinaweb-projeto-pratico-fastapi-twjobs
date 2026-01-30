@@ -38,7 +38,8 @@ def get_skills(session: SessionDep, filters: Annotated[SkillFilters, Query()]):
     offset = (filters.page - 1) * filters.size
 
     stmt = (
-        base_stmt.order_by(order_func(order_column))
+        base_stmt
+        .order_by(order_func(order_column))
         .offset(offset)
         .limit(filters.size)
     )

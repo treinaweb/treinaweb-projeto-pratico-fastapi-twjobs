@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from twjobs.core.dependencies import SessionDep
+from twjobs.core.dependencies import CurrentUserDep, SessionDep
 from twjobs.core.models import User
 from twjobs.core.security import (
     create_access_token,
@@ -66,3 +66,8 @@ def login(
     )
 
     return TokenResponse(access_token=access_token)
+
+
+@router.get("/me", response_model=UserResponse)
+def get_current_user(current_user: CurrentUserDep):
+    return current_user

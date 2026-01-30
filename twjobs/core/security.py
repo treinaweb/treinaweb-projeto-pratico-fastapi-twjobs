@@ -30,3 +30,16 @@ def create_access_token(sub: int, extra_claims: dict | None = None):
         settings.ACCESS_TOKEN_SECRET,
         algorithm=settings.ACCESS_TOKEN_ALGORITHM,
     )
+
+
+def get_sub_from_token(token: str) -> int | None:
+    try:
+        payload = jwt.decode(
+            token,
+            settings.ACCESS_TOKEN_SECRET,
+            algorithms=[settings.ACCESS_TOKEN_ALGORITHM],
+        )
+        sub = payload.get("sub")
+        return int(sub) if sub else None
+    except jwt.InvalidTokenError:
+        return None
