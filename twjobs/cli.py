@@ -1,8 +1,11 @@
 import typer
+from rich import print
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from twjobs.core.db import engine
-from twjobs.core.models import Skill
+from twjobs.core.models import Skill, User
+from twjobs.core.security import hash_password
 
 app = typer.Typer()
 
@@ -128,7 +131,33 @@ def populate_skills():
             session.add(skill)
         session.commit()
 
-    print("Skills populated successfully.")
+    print("[bold green]Skills populated successfully.[/bold green]")
+
+
+@app.command()
+def create_superuser():
+    username = typer.prompt("What is the superuser username?", default="admin")
+    password = typer.prompt("What is the superuser password?", hide_input=True)
+
+    password_hash = hash_password(password)
+
+    with Session(engine) as session:
+        superuser = User(
+            username=username, password_hash=password_hash, role="admin"
+        )
+        session.add(superuser)
+        try:
+            session.commit()
+            print(
+                f"[bold green]Superuser '{username}' "
+                "created successfully.[/bold green]"
+            )
+        except IntegrityError:
+            session.rollback()
+            print(
+                f"[bold red]Error: A user with username '{username}' "
+                "already exists.[/bold red]"
+            )
 
 
 if __name__ == "__main__":
