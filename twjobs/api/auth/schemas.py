@@ -26,3 +26,8 @@ class UserResponse(BaseModel):
     id: int
     username: str
     role: Literal["admin", "company", "candidate"]
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: Literal["bearer"] = "bearer"

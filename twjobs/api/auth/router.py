@@ -1,13 +1,20 @@
 from http import HTTPStatus
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from twjobs.core.dependencies import SessionDep
 from twjobs.core.models import User
-from twjobs.core.security import hash_password
+from twjobs.core.security import (
+    create_access_token,
+    hash_password,
+    verify_password,
+)
 
-from .schemas import RegisterRequest, UserResponse
+from .schemas import RegisterRequest, TokenResponse, UserResponse
 
 router = APIRouter(tags=["Auth"])
 
@@ -34,3 +41,28 @@ def register_user(req: RegisterRequest, session: SessionDep):
 
     session.refresh(db_user)
     return db_user
+
+
+@router.post("/login", response_model=TokenResponse)
+def login(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: SessionDep,
+):
+    db_user = session.scalar(
+        select(User).where(User.username == form_data.username)
+    )
+
+    if db_user is None or not verify_password(
+        form_data.password, db_user.password_hash
+    ):
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="Invalid username or password.",
+        )
+
+    access_token = create_access_token(
+        sub=db_user.id,
+        extra_claims={"username": db_user.username, "role": db_user.role},
+    )
+
+    return TokenResponse(access_token=access_token)
