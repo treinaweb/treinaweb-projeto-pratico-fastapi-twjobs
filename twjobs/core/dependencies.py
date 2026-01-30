@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -41,3 +41,22 @@ def get_current_user(session: SessionDep, token: TokenDep):
 
 
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
+
+
+class RoleChecker:
+    def __init__(
+        self, allowed_roles: list[Literal["admin", "company", "candidate"]]
+    ):
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, user: CurrentUserDep):
+        if user.role not in self.allowed_roles:
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN,
+                detail="You do not have enough permissions to access "
+                "this resource.",
+            )
+        return user
+
+
+CurrentCompanyUserDep = Annotated[User, Depends(RoleChecker(["company"]))]
