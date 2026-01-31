@@ -1,6 +1,6 @@
-from typing import Annotated, Literal
+from typing import Annotated
 
-from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from validate_docbr import CPF
 
 
@@ -35,23 +35,3 @@ class CandidateResponse(BaseModel):
     headline: str
     bio: str
     cpf: str
-
-
-class SkillRequest(BaseModel):
-    skills: list[int]
-
-
-class SkillResponse(BaseModel):
-    id: int
-    name: str
-
-
-class LinkResponse(BaseModel):
-    id: int
-    url: str
-    link_type: str
-
-
-class LinkRequest(BaseModel):
-    url: HttpUrl
-    link_type: Literal["linkedin", "github", "portfolio", "other"]
