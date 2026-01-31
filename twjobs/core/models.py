@@ -96,3 +96,23 @@ class Candidate:
     skills: Mapped[list["Skill"]] = relationship(
         init=False, secondary=candidate_skills
     )
+
+    links: Mapped[list["Link"]] = relationship(
+        init=False, back_populates="candidate", cascade="all, delete-orphan"
+    )
+
+
+@mapped_as_dataclass(table_registry)
+class Link:
+    __tablename__ = "links"
+
+    id: Mapped[int] = mapped_column(
+        init=False, primary_key=True, autoincrement=True
+    )
+    url: Mapped[str]
+    link_type: Mapped[str]
+    candidate_id: Mapped[int] = mapped_column(ForeignKey("candidates.user_id"))
+
+    candidate: Mapped["Candidate"] = relationship(
+        init=False, back_populates="links"
+    )
