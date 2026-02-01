@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy import Column, ForeignKey, Table, Text
 from sqlalchemy.orm import (
     Mapped,
@@ -101,6 +103,10 @@ class Candidate:
         init=False, back_populates="candidate", cascade="all, delete-orphan"
     )
 
+    experiences: Mapped[list["Experience"]] = relationship(
+        init=False, back_populates="candidate", cascade="all, delete-orphan"
+    )
+
 
 @mapped_as_dataclass(table_registry)
 class Link:
@@ -115,4 +121,24 @@ class Link:
 
     candidate: Mapped["Candidate"] = relationship(
         init=False, back_populates="links"
+    )
+
+
+@mapped_as_dataclass(table_registry)
+class Experience:
+    __tablename__ = "experiences"
+
+    id: Mapped[int] = mapped_column(
+        init=False, primary_key=True, autoincrement=True
+    )
+    title: Mapped[str]
+    company: Mapped[str]
+    role: Mapped[str]
+    description: Mapped[str] = mapped_column(Text)
+    start_date: Mapped[date]
+    end_date: Mapped[date | None]
+    candidate_id: Mapped[int] = mapped_column(ForeignKey("candidates.user_id"))
+
+    candidate: Mapped["Candidate"] = relationship(
+        init=False, back_populates="experiences"
     )
