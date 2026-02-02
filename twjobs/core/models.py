@@ -107,6 +107,10 @@ class Candidate:
         init=False, back_populates="candidate", cascade="all, delete-orphan"
     )
 
+    educations: Mapped[list["Education"]] = relationship(
+        init=False, back_populates="candidate", cascade="all, delete-orphan"
+    )
+
 
 @mapped_as_dataclass(table_registry)
 class Link:
@@ -141,4 +145,23 @@ class Experience:
 
     candidate: Mapped["Candidate"] = relationship(
         init=False, back_populates="experiences"
+    )
+
+
+@mapped_as_dataclass(table_registry)
+class Education:
+    __tablename__ = "educations"
+
+    id: Mapped[int] = mapped_column(
+        init=False, primary_key=True, autoincrement=True
+    )
+    institution: Mapped[str]
+    degree: Mapped[str]
+    field_of_study: Mapped[str]
+    start_date: Mapped[date]
+    end_date: Mapped[date | None]
+    candidate_id: Mapped[int] = mapped_column(ForeignKey("candidates.user_id"))
+
+    candidate: Mapped["Candidate"] = relationship(
+        init=False, back_populates="educations"
     )

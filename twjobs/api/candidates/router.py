@@ -10,6 +10,7 @@ from twjobs.core.dependencies import (
 )
 from twjobs.core.models import Candidate
 
+from .educations.router import router as educations_router
 from .experiences.router import router as experiences_router
 from .links.router import router as links_router
 from .schemas import CandidateRequest, CandidateResponse
@@ -20,6 +21,7 @@ router = APIRouter(tags=["Candidates"])
 router.include_router(links_router)
 router.include_router(skills_router)
 router.include_router(experiences_router)
+router.include_router(educations_router)
 
 
 @router.put("/me", response_model=CandidateResponse)
