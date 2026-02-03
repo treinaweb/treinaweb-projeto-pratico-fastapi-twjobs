@@ -7,8 +7,11 @@ from twjobs.core.dependencies import CurrentCompanyUserDep, SessionDep
 from twjobs.core.models import Job
 
 from .schemas import JobRequest, JobResponse
+from .skills.router import router as skills_router
 
 router = APIRouter(tags=["Jobs"])
+
+router.include_router(skills_router)
 
 
 @router.post("/", response_model=JobResponse, status_code=HTTPStatus.CREATED)

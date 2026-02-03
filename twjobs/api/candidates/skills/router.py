@@ -3,6 +3,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 
+from twjobs.api.common.schemas import SkillListRequest, SkillResponse
 from twjobs.core.dependencies import (
     CurrentAdminOrCompanyUserDep,
     CurrentCandidateUserDep,
@@ -10,14 +11,12 @@ from twjobs.core.dependencies import (
 )
 from twjobs.core.models import Candidate, Skill
 
-from .schemas import SkillRequest, SkillResponse
-
 router = APIRouter(tags=["Candidates", "Skills"])
 
 
 @router.put("/me/skills", response_model=list[SkillResponse])
 def update_current_candidate_skills(
-    req: SkillRequest,
+    req: SkillListRequest,
     session: SessionDep,
     current_user: CurrentCandidateUserDep,
 ):

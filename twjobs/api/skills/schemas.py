@@ -2,6 +2,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from twjobs.api.common.schemas import SkillResponse
+
 
 class SkillRequest(BaseModel):
     name: Annotated[str, Field(min_length=3, max_length=50)]
@@ -9,11 +11,6 @@ class SkillRequest(BaseModel):
     @field_validator("name")
     def normalize_name(cls, value: str):
         return value.strip().upper()
-
-
-class SkillResponse(BaseModel):
-    id: int
-    name: str
 
 
 class PaginatedSkillResponse(BaseModel):

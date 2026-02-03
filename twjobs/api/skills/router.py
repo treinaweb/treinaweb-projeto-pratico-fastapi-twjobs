@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import asc, desc, func, select
 from sqlalchemy.exc import IntegrityError
 
+from twjobs.api.common.schemas import SkillResponse
 from twjobs.core.dependencies import SessionDep
 from twjobs.core.models import Skill
 
@@ -12,7 +13,6 @@ from .schemas import (
     PaginatedSkillResponse,
     SkillFilters,
     SkillRequest,
-    SkillResponse,
 )
 
 router = APIRouter(tags=["Skills"])

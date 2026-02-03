@@ -27,6 +27,21 @@ candidate_skills = Table(
     ),
 )
 
+job_skills = Table(
+    "job_skills",
+    table_registry.metadata,
+    Column(
+        "job_id",
+        ForeignKey("jobs.id"),
+        primary_key=True,
+    ),
+    Column(
+        "skill_id",
+        ForeignKey("skills.id"),
+        primary_key=True,
+    ),
+)
+
 
 @mapped_as_dataclass(table_registry)
 class Skill:
@@ -69,7 +84,7 @@ class Company:
     size: Mapped[str]
     website: Mapped[str]
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"), primary_key=True
+        ForeignKey("users.id"), primary_key=True, unique=True
     )
 
     user: Mapped["User"] = relationship(
@@ -197,4 +212,8 @@ class Job:
 
     company: Mapped["Company"] = relationship(
         init=False, back_populates="jobs"
+    )
+
+    skills: Mapped[list["Skill"]] = relationship(
+        init=False, secondary=job_skills
     )
