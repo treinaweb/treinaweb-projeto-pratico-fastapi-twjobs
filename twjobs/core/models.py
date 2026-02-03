@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import date, datetime
 
-from sqlalchemy import Column, ForeignKey, Table, Text
+from sqlalchemy import Column, ForeignKey, Table, Text, func
 from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,
@@ -74,6 +74,10 @@ class Company:
 
     user: Mapped["User"] = relationship(
         init=False, back_populates="company", single_parent=True
+    )
+
+    jobs: Mapped[list["Job"]] = relationship(
+        init=False, back_populates="company", cascade="all, delete-orphan"
     )
 
 
@@ -164,4 +168,33 @@ class Education:
 
     candidate: Mapped["Candidate"] = relationship(
         init=False, back_populates="educations"
+    )
+
+
+@mapped_as_dataclass(table_registry)
+class Job:
+    __tablename__ = "jobs"
+
+    id: Mapped[int] = mapped_column(
+        init=False, primary_key=True, autoincrement=True
+    )
+    title: Mapped[str]
+    description: Mapped[str] = mapped_column(Text)
+    level: Mapped[str]
+    employment_type: Mapped[str]
+    salary_min: Mapped[float | None]
+    salary_max: Mapped[float | None]
+    location: Mapped[str]
+    is_remote: Mapped[bool]
+    status: Mapped[str]
+    created_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now(), onupdate=func.now()
+    )
+    company_id: Mapped[int] = mapped_column(ForeignKey("companies.user_id"))
+
+    company: Mapped["Company"] = relationship(
+        init=False, back_populates="jobs"
     )
