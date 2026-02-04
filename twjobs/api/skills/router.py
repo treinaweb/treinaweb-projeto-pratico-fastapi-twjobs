@@ -5,15 +5,11 @@ from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import asc, desc, func, select
 from sqlalchemy.exc import IntegrityError
 
-from twjobs.api.common.schemas import SkillResponse
+from twjobs.api.common.schemas import PaginatedResponse, SkillResponse
 from twjobs.core.dependencies import SessionDep
 from twjobs.core.models import Skill
 
-from .schemas import (
-    PaginatedSkillResponse,
-    SkillFilters,
-    SkillRequest,
-)
+from .schemas import SkillFilters, SkillRequest
 
 router = APIRouter(tags=["Skills"])
 
@@ -21,7 +17,7 @@ router = APIRouter(tags=["Skills"])
 @router.get(
     "/",
     summary="Retrieve all skills",
-    response_model=PaginatedSkillResponse,
+    response_model=PaginatedResponse[SkillResponse],
 )
 def get_skills(session: SessionDep, filters: Annotated[SkillFilters, Query()]):
     base_stmt = select(Skill)

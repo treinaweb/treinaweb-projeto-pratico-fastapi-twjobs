@@ -3,10 +3,11 @@ from http import HTTPStatus
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 
+from twjobs.api.common.schemas import CompanyResponse
 from twjobs.core.dependencies import CurrentCompanyUserDep, SessionDep
 from twjobs.core.models import Company
 
-from .schemas import CompanyRequest, CompanyResponse
+from .schemas import CompanyRequest
 
 router = APIRouter(tags=["Companies"])
 

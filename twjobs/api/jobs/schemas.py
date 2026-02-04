@@ -2,12 +2,17 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
+from twjobs.api.common.schemas import CompanyResponse, SkillResponse
+
+LevelOptions = Literal["junior", "mid", "senior"]
+EmploymentTypeOptions = Literal["clt", "pj", "freelancer", "internship"]
+
 
 class JobRequest(BaseModel):
     title: Annotated[str, Field(min_length=3, max_length=100)]
     description: Annotated[str, Field(min_length=10)]
-    level: Literal["junior", "mid", "senior"]
-    employment_type: Literal["clt", "pj", "freelancer", "internship"]
+    level: LevelOptions
+    employment_type: EmploymentTypeOptions
     salary_min: Annotated[float | None, Field(ge=0)] = None
     salary_max: Annotated[float | None, Field(ge=0)] = None
     location: Annotated[str, Field(min_length=3, max_length=100)]
@@ -45,4 +50,20 @@ class JobResponse(BaseModel):
     location: str
     is_remote: bool
     status: str
-    company_id: int
+    company: CompanyResponse
+    skills: list[SkillResponse]
+
+
+class JobFilters(BaseModel):
+    page: Annotated[int, Field(gt=0)] = 1
+    size: Annotated[int, Field(gt=0, le=100)] = 20
+    search: str | None = None
+    level: LevelOptions | None = None
+    employment_type: EmploymentTypeOptions | None = None
+    is_remote: bool | None = None
+    company_id: int | None = None
+    skills: list[int] | None = None
+    order_by: Literal[
+        "id", "title", "salary_min", "salary_max", "created_at"
+    ] = "id"
+    order_dir: Literal["asc", "desc"] = "asc"

@@ -1,12 +1,14 @@
 from http import HTTPStatus
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
+from fastapi import APIRouter, HTTPException, Query
+from sqlalchemy import asc, desc, func, select
 
+from twjobs.api.common.schemas import PaginatedResponse
 from twjobs.core.dependencies import CurrentCompanyUserDep, SessionDep
-from twjobs.core.models import Job
+from twjobs.core.models import Job, job_skills
 
-from .schemas import JobRequest, JobResponse
+from .schemas import JobFilters, JobRequest, JobResponse
 from .skills.router import router as skills_router
 
 router = APIRouter(tags=["Jobs"])
@@ -35,9 +37,58 @@ def create_job(
     return db_job
 
 
-@router.get("/", response_model=list[JobResponse])
-def list_jobs(session: SessionDep):
-    return session.scalars(select(Job)).all()
+@router.get("/", response_model=PaginatedResponse[JobResponse])
+def list_jobs(session: SessionDep, filters: Annotated[JobFilters, Query()]):
+    base_stmt = select(Job)
+
+    if filters.search:
+        base_stmt = base_stmt.where(Job.title.ilike(f"%{filters.search}%"))
+
+    if filters.level:
+        base_stmt = base_stmt.where(Job.level == filters.level)
+
+    if filters.employment_type:
+        base_stmt = base_stmt.where(
+            Job.employment_type == filters.employment_type
+        )
+
+    if filters.is_remote is not None:
+        base_stmt = base_stmt.where(Job.is_remote == filters.is_remote)
+
+    if filters.company_id:
+        base_stmt = base_stmt.where(Job.company_id == filters.company_id)
+
+    if filters.skills:
+        base_stmt = (
+            base_stmt
+            .join(job_skills)
+            .where(job_skills.c.skill_id.in_(filters.skills))
+            .distinct()
+        )
+
+    total = session.scalar(
+        select(func.count()).select_from(base_stmt.subquery())
+    )
+
+    order_column = getattr(Job, filters.order_by)
+    order_func = asc if filters.order_dir == "asc" else desc
+    offset = (filters.page - 1) * filters.size
+
+    stmt = (
+        base_stmt
+        .order_by(order_func(order_column))
+        .offset(offset)
+        .limit(filters.size)
+    )
+
+    jobs = session.scalars(stmt).all()
+
+    return {
+        "total": total,
+        "page": filters.page,
+        "size": filters.size,
+        "items": jobs,
+    }
 
 
 @router.get("/{job_id}", response_model=JobResponse)
