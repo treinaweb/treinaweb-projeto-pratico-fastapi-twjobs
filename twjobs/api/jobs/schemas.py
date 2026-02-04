@@ -62,6 +62,7 @@ class JobFilters(BaseModel):
     employment_type: EmploymentTypeOptions | None = None
     is_remote: bool | None = None
     company_id: int | None = None
+    status: Literal["open", "close"] | None = None
     skills: list[int] | None = None
     order_by: Literal[
         "id", "title", "salary_min", "salary_max", "created_at"

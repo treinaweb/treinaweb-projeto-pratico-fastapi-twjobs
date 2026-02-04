@@ -58,6 +58,9 @@ def list_jobs(session: SessionDep, filters: Annotated[JobFilters, Query()]):
     if filters.company_id:
         base_stmt = base_stmt.where(Job.company_id == filters.company_id)
 
+    if filters.status:
+        base_stmt = base_stmt.where(Job.status == filters.status)
+
     if filters.skills:
         base_stmt = (
             base_stmt
@@ -143,3 +146,28 @@ def delete_job(
 
     session.delete(db_job)
     session.commit()
+
+
+@router.patch("/{job_id}/toggle-status", response_model=JobResponse)
+def toggle_job_status(
+    job_id: int,
+    session: SessionDep,
+    current_user: CurrentCompanyUserDep,
+):
+    db_job = session.scalar(
+        select(Job).where(
+            Job.id == job_id,
+            Job.company_id == current_user.company.user_id,
+        )
+    )
+
+    if db_job is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail="Job not found."
+        )
+
+    db_job.status = "closed" if db_job.status == "open" else "open"
+
+    session.commit()
+    session.refresh(db_job)
+    return db_job
