@@ -1,6 +1,7 @@
 from datetime import date, datetime
+from typing import Literal
 
-from sqlalchemy import Column, ForeignKey, Table, Text, func
+from sqlalchemy import Column, ForeignKey, Table, Text, UniqueConstraint, func
 from sqlalchemy.orm import (
     Mapped,
     mapped_as_dataclass,
@@ -130,6 +131,10 @@ class Candidate:
         init=False, back_populates="candidate", cascade="all, delete-orphan"
     )
 
+    applications: Mapped[list["Application"]] = relationship(
+        init=False, back_populates="candidate", cascade="all, delete-orphan"
+    )
+
 
 @mapped_as_dataclass(table_registry)
 class Link:
@@ -217,3 +222,61 @@ class Job:
     skills: Mapped[list["Skill"]] = relationship(
         init=False, secondary=job_skills
     )
+
+    applications: Mapped[list["Application"]] = relationship(
+        init=False, back_populates="job", cascade="all, delete-orphan"
+    )
+
+
+ApplicationStatus = Literal["applied", "reviewing", "approved", "rejected"]
+
+
+@mapped_as_dataclass(table_registry)
+class Application:
+    __tablename__ = "applications"
+
+    id: Mapped[int] = mapped_column(
+        init=False, primary_key=True, autoincrement=True
+    )
+    job_id: Mapped[int] = mapped_column(ForeignKey("jobs.id"))
+    candidate_id: Mapped[int] = mapped_column(ForeignKey("candidates.user_id"))
+    status: Mapped[str] = mapped_column(default="applied")
+    applied_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now(), onupdate=func.now()
+    )
+
+    candidate: Mapped["Candidate"] = relationship(
+        init=False, back_populates="applications"
+    )
+
+    job: Mapped["Job"] = relationship(
+        init=False, back_populates="applications"
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "job_id", "candidate_id", name="uq_candidate_application"
+        ),
+    )
+
+    def can_transition_to(self, new_status: ApplicationStatus) -> bool:
+        allowed_transitions: dict[
+            ApplicationStatus, list[ApplicationStatus]
+        ] = {
+            "applied": ["reviewing", "rejected"],
+            "reviewing": ["approved", "rejected"],
+            "approved": [],
+            "rejected": [],
+        }
+
+        return new_status in allowed_transitions[self.status]
+
+    def transition_to(self, new_status: ApplicationStatus):
+        if not self.can_transition_to(new_status):
+            raise ValueError(
+                f"Invalid status transition from {self.status} to {new_status}"
+            )
+        self.status = new_status
