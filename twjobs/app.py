@@ -6,6 +6,8 @@ from twjobs.api.candidates.router import router as candidates_router
 from twjobs.api.companies.router import router as companies_router
 from twjobs.api.jobs.router import router as jobs_router
 from twjobs.api.skills.router import router as skills_router
+from twjobs.core.mail import mail_service
+from twjobs.core.template import render_template
 
 app = FastAPI()
 
@@ -15,3 +17,11 @@ app.include_router(companies_router, prefix="/api/companies")
 app.include_router(candidates_router, prefix="/api/candidates")
 app.include_router(jobs_router, prefix="/api/jobs")
 app.include_router(applications_router, prefix="/api/applications")
+
+
+@app.get("/mail-test")
+async def mail_test():
+    html_content = render_template("test.html", {"name": "Cleyson"})
+    await mail_service.send_html_mail(
+        subject="Test Mail", to="test@mail.com", html_content=html_content
+    )

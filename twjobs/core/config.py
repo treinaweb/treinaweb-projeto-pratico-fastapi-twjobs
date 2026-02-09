@@ -8,6 +8,12 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_SECRET: str
     ACCESS_TOKEN_DURATION: timedelta = timedelta(minutes=30)
     ACCESS_TOKEN_ALGORITHM: str = "HS256"
+    EMAIL_FROM: str = "no-reply@twjobs.com.br"
+    EMAIL_HOST: str
+    EMAIL_PORT: int
+    EMAIL_USER: str
+    EMAIL_PASSWORD: str
+    EMAIL_USE_TLS: bool = True
 
     model_config = SettingsConfigDict(
         env_file=".env",
