@@ -25,13 +25,3 @@ class CandidateRequest(BaseModel):
         if not CPF().validate(value):
             raise ValueError("Invalid CPF number.")
         return value
-
-
-class CandidateResponse(BaseModel):
-    user_id: int
-    name: str
-    email: EmailStr
-    phone: str
-    headline: str
-    bio: str
-    cpf: str

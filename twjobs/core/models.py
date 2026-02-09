@@ -73,6 +73,12 @@ class User:
         init=False, back_populates="user"
     )
 
+    def is_company(self) -> bool:
+        return self.role == "company"
+
+    def is_candidate(self) -> bool:
+        return self.role == "candidate"
+
 
 @mapped_as_dataclass(table_registry)
 class Company:

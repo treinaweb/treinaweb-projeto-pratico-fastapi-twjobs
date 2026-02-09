@@ -2,8 +2,6 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
-from twjobs.api.common.schemas import CompanyResponse, SkillResponse
-
 LevelOptions = Literal["junior", "mid", "senior"]
 EmploymentTypeOptions = Literal["clt", "pj", "freelancer", "internship"]
 
@@ -37,21 +35,6 @@ class JobRequest(BaseModel):
                 )
 
         return self
-
-
-class JobResponse(BaseModel):
-    id: int
-    title: str
-    description: str
-    level: str
-    employment_type: str
-    salary_min: float | None
-    salary_max: float | None
-    location: str
-    is_remote: bool
-    status: str
-    company: CompanyResponse
-    skills: list[SkillResponse]
 
 
 class JobFilters(BaseModel):

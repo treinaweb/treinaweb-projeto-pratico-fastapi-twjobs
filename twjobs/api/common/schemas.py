@@ -30,3 +30,28 @@ class PaginatedResponse(BaseModel, Generic[T]):
     page: int
     size: int
     items: list[T]
+
+
+class JobResponse(BaseModel):
+    id: int
+    title: str
+    description: str
+    level: str
+    employment_type: str
+    salary_min: float | None
+    salary_max: float | None
+    location: str
+    is_remote: bool
+    status: str
+    company: CompanyResponse
+    skills: list[SkillResponse]
+
+
+class CandidateResponse(BaseModel):
+    user_id: int
+    name: str
+    email: str
+    phone: str
+    headline: str
+    bio: str
+    cpf: str

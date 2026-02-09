@@ -3,6 +3,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 
+from twjobs.api.common.schemas import CandidateResponse
 from twjobs.core.dependencies import (
     CurrentAdminOrCompanyUserDep,
     CurrentCandidateUserDep,
@@ -13,7 +14,7 @@ from twjobs.core.models import Candidate
 from .educations.router import router as educations_router
 from .experiences.router import router as experiences_router
 from .links.router import router as links_router
-from .schemas import CandidateRequest, CandidateResponse
+from .schemas import CandidateRequest
 from .skills.router import router as skills_router
 
 router = APIRouter(tags=["Candidates"])

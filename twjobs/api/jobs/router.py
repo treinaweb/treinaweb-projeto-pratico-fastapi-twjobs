@@ -4,16 +4,18 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import asc, desc, func, select
 
-from twjobs.api.common.schemas import PaginatedResponse
+from twjobs.api.common.schemas import JobResponse, PaginatedResponse
 from twjobs.core.dependencies import CurrentCompanyUserDep, SessionDep
 from twjobs.core.models import Job, job_skills
 
-from .schemas import JobFilters, JobRequest, JobResponse
+from .applications.router import router as applications_router
+from .schemas import JobFilters, JobRequest
 from .skills.router import router as skills_router
 
 router = APIRouter(tags=["Jobs"])
 
 router.include_router(skills_router)
+router.include_router(applications_router)
 
 
 @router.post("/", response_model=JobResponse, status_code=HTTPStatus.CREATED)
