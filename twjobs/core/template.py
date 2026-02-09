@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -10,6 +11,9 @@ jinja_env = Environment(
 )
 
 
-def render_template(template_name: str, context: dict) -> str:
+TemplateNames = Literal["email/welcome.html"]
+
+
+def render_template(template_name: TemplateNames, context: dict) -> str:
     template = jinja_env.get_template(template_name)
     return template.render(context)

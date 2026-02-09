@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from sqlalchemy import select
 
 from twjobs.api.common.schemas import CandidateResponse
@@ -9,6 +9,7 @@ from twjobs.core.dependencies import (
     CurrentCandidateUserDep,
     SessionDep,
 )
+from twjobs.core.mail import WelcomeEmailContext, mail_service
 from twjobs.core.models import Candidate
 
 from .educations.router import router as educations_router
@@ -26,10 +27,11 @@ router.include_router(educations_router)
 
 
 @router.put("/me", response_model=CandidateResponse)
-def create_or_update_candidate(
+async def create_or_update_candidate(
     req: CandidateRequest,
     session: SessionDep,
     current_user: CurrentCandidateUserDep,
+    background_tasks: BackgroundTasks,
 ):
     email_exists = session.scalar(
         select(Candidate).where(
@@ -55,7 +57,9 @@ def create_or_update_candidate(
             detail="A candidate with the given CPF already exists.",
         )
 
-    if current_user.candidate is not None:
+    is_new = current_user.candidate is None
+
+    if not is_new:
         db_candidate = current_user.candidate
         for key, value in req.model_dump(mode="json").items():
             setattr(db_candidate, key, value)
@@ -67,6 +71,16 @@ def create_or_update_candidate(
 
     session.commit()
     session.refresh(db_candidate)
+
+    if is_new:
+        background_tasks.add_task(
+            mail_service.send_welcome_mail,
+            to=db_candidate.email,
+            context=WelcomeEmailContext(
+                name=db_candidate.name, role="candidate"
+            ),
+        )
+
     return db_candidate
 
 

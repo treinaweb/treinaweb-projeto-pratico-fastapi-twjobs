@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao TWJobs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #007bff;
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .content h2 {
+            color: #007bff;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        .content p {
+            margin-bottom: 15px;
+        }
+        .highlight-box {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 12px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        ul li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Bem-vindo ao TWJobs!</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Olá, {{ name }}!</h2>
+            
+            {% if role == 'candidate' %}
+            <p>É um prazer tê-lo conosco! Seu perfil de <strong>candidato</strong> foi criado com sucesso na plataforma TWJobs.</p>
+            
+            <div class="highlight-box">
+                <p><strong>Como candidato, você pode:</strong></p>
+                <ul>
+                    <li>📋 Criar e gerenciar seu currículo profissional completo</li>
+                    <li>🔍 Buscar e explorar oportunidades de emprego</li>
+                    <li>📤 Candidatar-se a vagas que correspondam ao seu perfil</li>
+                    <li>📊 Acompanhar o status das suas candidaturas</li>
+                    <li>💼 Adicionar suas habilidades, experiências e formações</li>
+                </ul>
+            </div>
+            
+            <p>Complete seu perfil para aumentar suas chances de ser encontrado pelas empresas!</p>
+            
+            {% elif role == 'company' %}
+            <p>É um prazer tê-los conosco! O perfil da sua <strong>empresa</strong> foi criado com sucesso na plataforma TWJobs.</p>
+            
+            <div class="highlight-box">
+                <p><strong>Como empresa, você pode:</strong></p>
+                <ul>
+                    <li>📢 Publicar vagas de emprego na plataforma</li>
+                    <li>👥 Gerenciar todas as suas oportunidades de trabalho</li>
+                    <li>🔎 Visualizar candidatos que se candidataram às suas vagas</li>
+                    <li>✅ Revisar, aprovar ou rejeitar candidaturas</li>
+                    <li>🏢 Atualizar informações da sua empresa</li>
+                </ul>
+            </div>
+            
+            <p>Complete o perfil da sua empresa e comece a publicar vagas para encontrar os melhores talentos!</p>
+            {% endif %}
+            
+            <p>Estamos felizes em ter você como parte da nossa comunidade e esperamos que encontre exatamente o que procura.</p>
+            
+            <p>Se tiver alguma dúvida ou precisar de ajuda, não hesite em entrar em contato conosco.</p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Equipe TWJobs</strong></p>
+            <p>Este é um email automático, por favor não responda.</p>
+        </div>
+    </div>
+</body>
+</html>

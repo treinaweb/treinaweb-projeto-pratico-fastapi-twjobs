@@ -1,8 +1,16 @@
 from email.message import EmailMessage
+from typing import Literal
 
 import aiosmtplib
+from pydantic import BaseModel
 
 from .config import settings
+from .template import render_template
+
+
+class WelcomeEmailContext(BaseModel):
+    name: str
+    role: Literal["candidate", "company"]
 
 
 class MailService:
@@ -14,24 +22,7 @@ class MailService:
         self.password = settings.EMAIL_PASSWORD
         self.use_tls = settings.EMAIL_USE_TLS
 
-    async def send_mail(self, subject: str, to: str, content: str):
-        message = EmailMessage()
-        message["From"] = self.from_mail
-        message["To"] = to
-        message["Subject"] = subject
-
-        message.set_content(content)
-
-        await aiosmtplib.send(
-            message,
-            hostname=self.host,
-            port=self.port,
-            username=self.username,
-            password=self.password,
-            use_tls=self.use_tls,
-        )
-
-    async def send_html_mail(self, subject: str, to: str, html_content: str):
+    async def _send_html_mail(self, subject: str, to: str, html_content: str):
         message = EmailMessage()
         message["From"] = self.from_mail
         message["To"] = to
@@ -49,6 +40,14 @@ class MailService:
             username=self.username,
             password=self.password,
             use_tls=self.use_tls,
+        )
+
+    async def send_welcome_mail(self, to: str, context: WelcomeEmailContext):
+        html_content = render_template(
+            "email/welcome.html", context.model_dump()
+        )
+        await self._send_html_mail(
+            subject="Bem-vindo ao TWJobs!", to=to, html_content=html_content
         )
 
 
