@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualização de Candidatura - TWJobs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header.reviewing {
+            border-bottom: 2px solid #ffc107;
+        }
+        .header.approved {
+            border-bottom: 2px solid #28a745;
+        }
+        .header.rejected {
+            border-bottom: 2px solid #dc3545;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .header.reviewing h1 {
+            color: #ffc107;
+        }
+        .header.approved h1 {
+            color: #28a745;
+        }
+        .header.rejected h1 {
+            color: #dc3545;
+        }
+        .status-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .content h2 {
+            color: #333;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        .content p {
+            margin-bottom: 15px;
+        }
+        .status-box {
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .status-box.reviewing {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        .status-box.approved {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .status-box.rejected {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        .status-box h3 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+        .status-box.reviewing h3 {
+            color: #856404;
+        }
+        .status-box.approved h3 {
+            color: #155724;
+        }
+        .status-box.rejected h3 {
+            color: #721c24;
+        }
+        .job-details {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .job-details h3 {
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .detail-item {
+            margin-bottom: 10px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header {{ status }}">
+            <div class="status-icon">
+                {% if status == 'reviewing' %}🔍
+                {% elif status == 'approved' %}✅
+                {% elif status == 'rejected' %}❌
+                {% endif %}
+            </div>
+            <h1>Atualização de Candidatura</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Olá, {{ candidate_name }}!</h2>
+            
+            <p>Temos uma atualização sobre sua candidatura na plataforma TWJobs.</p>
+            
+            <div class="status-box {{ status }}">
+                <h3>
+                    {% if status == 'reviewing' %}
+                    📋 Em Análise
+                    {% elif status == 'approved' %}
+                    🎉 Candidatura Aprovada!
+                    {% elif status == 'rejected' %}
+                    Candidatura Não Aprovada
+                    {% endif %}
+                </h3>
+                <p>
+                    {% if status == 'reviewing' %}
+                    Sua candidatura está sendo analisada pela empresa. Fique atento para as próximas atualizações!
+                    {% elif status == 'approved' %}
+                    Parabéns! Sua candidatura foi aprovada pela empresa. Em breve você receberá mais informações sobre os próximos passos do processo seletivo.
+                    {% elif status == 'rejected' %}
+                    Infelizmente, sua candidatura não foi aprovada desta vez. Continue se candidatando a outras oportunidades na plataforma!
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="job-details">
+                <h3>📋 Detalhes da Vaga</h3>
+                <div class="detail-item">
+                    <span class="detail-label">Vaga:</span> {{ job_title }}
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Empresa:</span> {{ company_name }}
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Nível:</span> {{ job_level }}
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Tipo:</span> {{ employment_type }}
+                </div>
+            </div>
+            
+            {% if status == 'reviewing' %}
+            <p>Continue mantendo seu perfil atualizado enquanto a empresa analisa sua candidatura.</p>
+            {% elif status == 'approved' %}
+            <p>Este é um grande passo na sua carreira! Boa sorte no processo seletivo! 🚀</p>
+            {% elif status == 'rejected' %}
+            <p>Não desanime! Há muitas outras oportunidades esperando por você na plataforma. Continue se candidatando! 💪</p>
+            {% endif %}
+        </div>
+        
+        <div class="footer">
+            <p><strong>Equipe TWJobs</strong></p>
+            <p>Este é um email automático, por favor não responda.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -11,7 +11,11 @@ jinja_env = Environment(
 )
 
 
-TemplateNames = Literal["email/welcome.html"]
+TemplateNames = Literal[
+    "email/welcome.html",
+    "email/application_confirmation.html",
+    "email/application_status_update.html",
+]
 
 
 def render_template(template_name: TemplateNames, context: dict) -> str:

@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from sqlalchemy import asc, desc, func, select
 
 from twjobs.api.common.schemas import PaginatedResponse
@@ -10,6 +10,7 @@ from twjobs.core.dependencies import (
     CurrentUserDep,
     SessionDep,
 )
+from twjobs.core.mail import ApplicationStatusUpdateContext, mail_service
 from twjobs.core.models import Application, Candidate, Job
 
 from .schemas import (
@@ -108,6 +109,7 @@ def update_application_status(
     req: ApplicationStatusUpdateRequest,
     current_user: CurrentCompanyUserDep,
     session: SessionDep,
+    background_tasks: BackgroundTasks,
 ):
     application_db = session.get(Application, application_id)
 
@@ -129,5 +131,18 @@ def update_application_status(
 
     session.commit()
     session.refresh(application_db)
+
+    background_tasks.add_task(
+        mail_service.send_application_status_update_mail,
+        to=application_db.candidate.email,
+        context=ApplicationStatusUpdateContext(
+            candidate_name=application_db.candidate.name,
+            job_title=application_db.job.title,
+            company_name=application_db.job.company.name,
+            employment_type=application_db.job.employment_type,
+            job_level=application_db.job.level,
+            status=req.status,
+        ),
+    )
 
     return application_db
