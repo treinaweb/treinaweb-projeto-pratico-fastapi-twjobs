@@ -14,7 +14,32 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - twjobs-network
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql+psycopg://postgres:postgres@db:5432/twjobs"
+      ACCESS_TOKEN_SECRET: "20c8db6ee7f221390cb5a2162bd882f49d7f9fce941d1988a8df0c3c457d9fd8"
+      ACCESS_TOKEN_DURATION: "PT30M"
+      EMAIL_HOST: "sandbox.smtp.mailtrap.io"
+      EMAIL_PORT: 2525
+      EMAIL_USER: "69471b9aaf9f77"
+      EMAIL_PASSWORD: "6c7b1985cda3c1"
+      EMAIL_USE_TLS: False
+    networks:
+      - twjobs-network
     
 volumes:
   db_data:
     driver: local
+
+networks:
+  twjobs-network:
+    driver: bridge
